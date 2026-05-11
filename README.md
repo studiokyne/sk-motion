@@ -52,7 +52,9 @@ add_action('wp_enqueue_scripts', function () {
             forceTopOnBoot: true,
             startAt: "top 98%",
             reduceMotion: "auto",
-            highlightEnd: "top 60%",
+             highlightEnd: "center",
+             highlightWordStagger: 0.04,
+             highlightCharStagger: 0.015,
             selectors: {
                 reveal: ".sk-reveal",
                 textReveal: ".sk-text-lines",
@@ -127,7 +129,9 @@ Vous pouvez configurer la librairie via `window.SKMotionConfig` ou `StudioKyneMo
 - `smoothScroll` (boolean, defaut: true) : active Lenis.
 - `forceTopOnBoot` (boolean, defaut: true) : force un scroll top au chargement.
 - `startAt` (string, defaut: "top 98%") : position de declenchement ScrollTrigger.
-- `highlightEnd` (string, defaut: "top 60%") : fin du reveal des highlights en mode scrub.
+- `highlightEnd` (string, defaut: "center") : fin du reveal des highlights en mode scrub.
+- `highlightWordStagger` (number, defaut: 0.04) : stagger entre les mots (highlight words).
+- `highlightCharStagger` (number, defaut: 0.015) : stagger entre les caracteres (highlight chars).
 - `ease` (string, defaut: "smoothKyne") : easing GSAP utilise.
 - `waitForFonts` (boolean, defaut: true) : attend le chargement des webfonts avant d'initialiser.
 - `fontReadyTimeout` (number ms, defaut: 1500) : timeout max pour l'attente des fonts.

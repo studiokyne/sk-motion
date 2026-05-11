@@ -17,7 +17,9 @@ const DEFAULT_CONFIG = {
   waitForFonts: true,
   fontReadyTimeout: 1500,
   reduceMotion: "auto",
-  highlightEnd: "top 60%",
+  highlightEnd: "center",
+  highlightWordStagger: 0.04,
+  highlightCharStagger: 0.015,
   selectors: {
     reveal: ".sk-reveal",
     textReveal: ".sk-text-lines",
@@ -357,7 +359,7 @@ function initTextHighlightWords(config) {
     gsap.to(split.words, {
       opacity: 1,
       ease: "none",
-      stagger: 0.1,
+      stagger: config.highlightWordStagger,
       overwrite: "auto",
       scrollTrigger: {
         trigger: el,
@@ -421,7 +423,7 @@ function initTextHighlightChars(config) {
     gsap.to(allChars, {
       opacity: 1,
       ease: "none",
-      stagger: 0.015,
+      stagger: config.highlightCharStagger,
       overwrite: "auto",
       scrollTrigger: {
         trigger: el,
