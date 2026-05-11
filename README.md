@@ -52,9 +52,9 @@ add_action('wp_enqueue_scripts', function () {
             forceTopOnBoot: true,
             startAt: "top 98%",
             reduceMotion: "auto",
-             highlightEnd: "center",
-             highlightWordStagger: 0.04,
-             highlightCharStagger: 0.015,
+             highlightEnd: "20%",
+             highlightWordStagger: 0.25,
+             highlightCharStagger: 0.10,
             selectors: {
                 reveal: ".sk-reveal",
                 textReveal: ".sk-text-lines",

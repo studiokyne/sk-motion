@@ -351,7 +351,7 @@ function initTextHighlightWords(config) {
     });
 
     gsap.set(split.words, {
-      opacity: 0.2,
+      opacity: 0.1,
       willChange: "opacity",
       color: "currentColor",
     });
@@ -415,7 +415,7 @@ function initTextHighlightChars(config) {
     });
 
     gsap.set(allChars, {
-      opacity: 0.35,
+      opacity: 0.1,
       willChange: "opacity",
       color: "currentColor",
     });
