@@ -17,6 +17,7 @@ const DEFAULT_CONFIG = {
   waitForFonts: true,
   fontReadyTimeout: 1500,
   reduceMotion: "auto",
+  highlightEnd: "top 60%",
   selectors: {
     reveal: ".sk-reveal",
     textReveal: ".sk-text-lines",
@@ -353,20 +354,17 @@ function initTextHighlightWords(config) {
       color: "currentColor",
     });
 
-    ScrollTrigger.create({
-      trigger: el,
-      start: config.startAt,
-      once: true,
-      markers: config.debug,
-      onEnter: () => {
-        gsap.to(split.words, {
-          opacity: 1,
-          duration: 0.6,
-          ease: config.ease,
-          stagger: 0.04,
-          overwrite: "auto",
-          clearProps: "opacity,willChange",
-        });
+    gsap.to(split.words, {
+      opacity: 1,
+      ease: "none",
+      stagger: 0.04,
+      overwrite: "auto",
+      scrollTrigger: {
+        trigger: el,
+        start: config.startAt,
+        end: config.highlightEnd,
+        scrub: true,
+        markers: config.debug,
       },
     });
   });
@@ -407,20 +405,17 @@ function initTextHighlightChars(config) {
       color: "currentColor",
     });
 
-    ScrollTrigger.create({
-      trigger: el,
-      start: config.startAt,
-      once: true,
-      markers: config.debug,
-      onEnter: () => {
-        gsap.to(split.chars, {
-          opacity: 1,
-          duration: 0.5,
-          ease: config.ease,
-          stagger: 0.015,
-          overwrite: "auto",
-          clearProps: "opacity,willChange",
-        });
+    gsap.to(split.chars, {
+      opacity: 1,
+      ease: "none",
+      stagger: 0.015,
+      overwrite: "auto",
+      scrollTrigger: {
+        trigger: el,
+        start: config.startAt,
+        end: config.highlightEnd,
+        scrub: true,
+        markers: config.debug,
       },
     });
   });

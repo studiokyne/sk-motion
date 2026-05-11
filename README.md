@@ -52,6 +52,7 @@ add_action('wp_enqueue_scripts', function () {
             forceTopOnBoot: true,
             startAt: "top 98%",
             reduceMotion: "auto",
+            highlightEnd: "top 60%",
             selectors: {
                 reveal: ".sk-reveal",
                 textReveal: ".sk-text-lines",
@@ -126,6 +127,7 @@ Vous pouvez configurer la librairie via `window.SKMotionConfig` ou `StudioKyneMo
 - `smoothScroll` (boolean, defaut: true) : active Lenis.
 - `forceTopOnBoot` (boolean, defaut: true) : force un scroll top au chargement.
 - `startAt` (string, defaut: "top 98%") : position de declenchement ScrollTrigger.
+- `highlightEnd` (string, defaut: "top 60%") : fin du reveal des highlights en mode scrub.
 - `ease` (string, defaut: "smoothKyne") : easing GSAP utilise.
 - `waitForFonts` (boolean, defaut: true) : attend le chargement des webfonts avant d'initialiser.
 - `fontReadyTimeout` (number ms, defaut: 1500) : timeout max pour l'attente des fonts.
