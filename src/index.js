@@ -357,7 +357,7 @@ function initTextHighlightWords(config) {
     gsap.to(split.words, {
       opacity: 1,
       ease: "none",
-      stagger: 0.02,
+      stagger: 0.1,
       overwrite: "auto",
       scrollTrigger: {
         trigger: el,
@@ -392,23 +392,36 @@ function initTextHighlightChars(config) {
       return;
     }
 
-    const split = SplitText.create(el, {
-      type: "chars",
-      charsClass: "sk-highlight-char",
+    const splitWords = SplitText.create(el, {
+      type: "words",
+      wordsClass: "sk-char-word",
       autoSplit: true,
       deepSlice: true,
     });
 
-    gsap.set(split.chars, {
-      opacity: 0.2,
+    const allChars = [];
+
+    splitWords.words.forEach((word) => {
+      const splitChars = SplitText.create(word, {
+        type: "chars",
+        charsClass: "sk-highlight-char",
+        autoSplit: true,
+        deepSlice: true,
+      });
+
+      allChars.push(...splitChars.chars);
+    });
+
+    gsap.set(allChars, {
+      opacity: 0.35,
       willChange: "opacity",
       color: "currentColor",
     });
 
-    gsap.to(split.chars, {
+    gsap.to(allChars, {
       opacity: 1,
       ease: "none",
-      stagger: 0.15,
+      stagger: 0.015,
       overwrite: "auto",
       scrollTrigger: {
         trigger: el,
