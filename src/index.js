@@ -11,15 +11,20 @@ const VERSION = __SK_MOTION_VERSION__;
 const DEFAULT_CONFIG = {
   debug: new URLSearchParams(window.location.search).has("saDebug"),
   smoothScroll: true,
-  forceTopOnBoot: false,
+  forceTopOnBoot: true,
   startAt: "top 98%",
   ease: "smoothKyne",
+  waitForFonts: true,
+  fontReadyTimeout: 1500,
+  reduceMotion: "auto",
   selectors: {
-    reveal: ".sa-reveal",
-    textReveal: ".sa-text-reveal",
-    opacity: ".sa-opacity",
-    entryBlur: ".sa-entry-blur"
-  }
+    reveal: ".sk-reveal",
+    textReveal: ".sk-text-lines",
+    opacity: ".sk-fade",
+    entryBlur: ".sk-entry-blur",
+    textHighlightWords: ".sk-text-highlight-words",
+    textHighlightChars: ".sk-text-highlight-chars",
+  },
 };
 
 let hasInit = false;
@@ -33,13 +38,50 @@ function domReady(callback) {
   }
 }
 
+function getUninitializedSelector(selector) {
+  return selector
+    .split(",")
+    .map((item) => `${item.trim()}:not([data-sk-init])`)
+    .join(", ");
+}
+
+function prefersReducedMotion() {
+  if (!window.matchMedia) return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function waitForFontsReady(config) {
+  if (!config.waitForFonts || config.reduceMotion) {
+    return Promise.resolve();
+  }
+
+  if (!document.fonts || !document.fonts.ready) {
+    return Promise.resolve();
+  }
+
+  const timeout = Number.isFinite(config.fontReadyTimeout)
+    ? Math.max(0, config.fontReadyTimeout)
+    : 0;
+
+  if (!timeout) {
+    return document.fonts.ready;
+  }
+
+  return Promise.race([
+    document.fonts.ready,
+    new Promise((resolve) => {
+      setTimeout(resolve, timeout);
+    }),
+  ]);
+}
+
 function initSmoothScroll(config) {
   if (!config.smoothScroll) return;
 
   lenis = new Lenis({
     allowNestedScroll: true,
     anchors: { offset: -108 },
-    autoRaf: false
+    autoRaf: false,
   });
 
   lenis.on("scroll", ScrollTrigger.update);
@@ -54,7 +96,11 @@ function initSmoothScroll(config) {
 }
 
 function initReveal(config) {
-  const els = [...document.querySelectorAll(`${config.selectors.reveal}:not([data-sk-init])`)];
+  const els = [
+    ...document.querySelectorAll(
+      getUninitializedSelector(config.selectors.reveal),
+    ),
+  ];
 
   if (!els.length) return;
 
@@ -62,10 +108,19 @@ function initReveal(config) {
     el.setAttribute("data-sk-init", "true");
   });
 
+  if (config.reduceMotion) {
+    gsap.set(els, {
+      y: 0,
+      opacity: 1,
+      clearProps: "transform,opacity,willChange",
+    });
+    return;
+  }
+
   gsap.set(els, {
     y: 40,
     opacity: 0,
-    willChange: "transform, opacity"
+    willChange: "transform, opacity",
   });
 
   ScrollTrigger.batch(els, {
@@ -81,14 +136,18 @@ function initReveal(config) {
         ease: config.ease,
         stagger: 0.08,
         overwrite: "auto",
-        clearProps: "transform,opacity,willChange"
+        clearProps: "transform,opacity,willChange",
       });
-    }
+    },
   });
 }
 
 function initOpacity(config) {
-  const els = [...document.querySelectorAll(`${config.selectors.opacity}:not([data-sk-init])`)];
+  const els = [
+    ...document.querySelectorAll(
+      getUninitializedSelector(config.selectors.opacity),
+    ),
+  ];
 
   if (!els.length) return;
 
@@ -96,9 +155,17 @@ function initOpacity(config) {
     el.setAttribute("data-sk-init", "true");
   });
 
+  if (config.reduceMotion) {
+    gsap.set(els, {
+      opacity: 1,
+      clearProps: "opacity,willChange",
+    });
+    return;
+  }
+
   gsap.set(els, {
     opacity: 0,
-    willChange: "opacity"
+    willChange: "opacity",
   });
 
   ScrollTrigger.batch(els, {
@@ -113,14 +180,18 @@ function initOpacity(config) {
         ease: config.ease,
         stagger: 0.08,
         overwrite: "auto",
-        clearProps: "opacity,willChange"
+        clearProps: "opacity,willChange",
       });
-    }
+    },
   });
 }
 
 function initEntryBlur(config) {
-  const els = [...document.querySelectorAll(`${config.selectors.entryBlur}:not([data-sk-init])`)];
+  const els = [
+    ...document.querySelectorAll(
+      getUninitializedSelector(config.selectors.entryBlur),
+    ),
+  ];
 
   if (!els.length) return;
 
@@ -128,11 +199,21 @@ function initEntryBlur(config) {
     el.setAttribute("data-sk-init", "true");
   });
 
+  if (config.reduceMotion) {
+    gsap.set(els, {
+      y: 0,
+      opacity: 1,
+      filter: "blur(0px)",
+      clearProps: "transform,opacity,filter,willChange",
+    });
+    return;
+  }
+
   gsap.set(els, {
     y: 18,
     opacity: 0,
     filter: "blur(10px)",
-    willChange: "transform, opacity, filter"
+    willChange: "transform, opacity, filter",
   });
 
   ScrollTrigger.batch(els, {
@@ -149,32 +230,44 @@ function initEntryBlur(config) {
         ease: config.ease,
         stagger: 0.08,
         overwrite: "auto",
-        clearProps: "transform,opacity,filter,willChange"
+        clearProps: "transform,opacity,filter,willChange",
       });
-    }
+    },
   });
 }
 
 function initTextReveal(config) {
-  const els = [...document.querySelectorAll(`${config.selectors.textReveal}:not([data-sk-init])`)];
+  const els = [
+    ...document.querySelectorAll(
+      getUninitializedSelector(config.selectors.textReveal),
+    ),
+  ];
 
   if (!els.length) return;
 
   els.forEach((el) => {
     el.setAttribute("data-sk-init", "true");
 
+    if (config.reduceMotion) {
+      gsap.set(el, {
+        opacity: 1,
+        clearProps: "transform,opacity,willChange",
+      });
+      return;
+    }
+
     const split = SplitText.create(el, {
       type: "lines",
       mask: "lines",
       linesClass: "sk-line",
       autoSplit: true,
-      deepSlice: true
+      deepSlice: true,
     });
 
     gsap.set(split.lines, {
       yPercent: 120,
       opacity: 0,
-      willChange: "transform, opacity"
+      willChange: "transform, opacity",
     });
 
     ScrollTrigger.create({
@@ -190,9 +283,9 @@ function initTextReveal(config) {
           ease: config.ease,
           stagger: 0.08,
           overwrite: "auto",
-          clearProps: "transform,opacity,willChange"
+          clearProps: "transform,opacity,willChange",
         });
-      }
+      },
     });
   });
 }
@@ -208,14 +301,129 @@ function injectCSSOnce() {
       backface-visibility: hidden;
     }
 
-    .sa-reveal,
-    .sa-opacity,
-    .sa-entry-blur {
+    .sk-highlight-word,
+    .sk-highlight-char {
+      display: inline-block;
+      backface-visibility: hidden;
+      color: currentColor;
+    }
+
+    .sk-reveal,
+    .sk-fade,
+    .sk-entry-blur {
       backface-visibility: hidden;
     }
   `;
 
   document.head.appendChild(style);
+}
+
+function initTextHighlightWords(config) {
+  if (!config.selectors.textHighlightWords) return;
+
+  const els = [
+    ...document.querySelectorAll(
+      getUninitializedSelector(config.selectors.textHighlightWords),
+    ),
+  ];
+
+  if (!els.length) return;
+
+  els.forEach((el) => {
+    el.setAttribute("data-sk-init", "true");
+
+    if (config.reduceMotion) {
+      gsap.set(el, {
+        opacity: 1,
+        clearProps: "opacity,willChange",
+      });
+      return;
+    }
+
+    const split = SplitText.create(el, {
+      type: "words",
+      wordsClass: "sk-highlight-word",
+      autoSplit: true,
+      deepSlice: true,
+    });
+
+    gsap.set(split.words, {
+      opacity: 0.35,
+      willChange: "opacity",
+      color: "currentColor",
+    });
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: config.startAt,
+      once: true,
+      markers: config.debug,
+      onEnter: () => {
+        gsap.to(split.words, {
+          opacity: 1,
+          duration: 0.6,
+          ease: config.ease,
+          stagger: 0.04,
+          overwrite: "auto",
+          clearProps: "opacity,willChange",
+        });
+      },
+    });
+  });
+}
+
+function initTextHighlightChars(config) {
+  if (!config.selectors.textHighlightChars) return;
+
+  const els = [
+    ...document.querySelectorAll(
+      getUninitializedSelector(config.selectors.textHighlightChars),
+    ),
+  ];
+
+  if (!els.length) return;
+
+  els.forEach((el) => {
+    el.setAttribute("data-sk-init", "true");
+
+    if (config.reduceMotion) {
+      gsap.set(el, {
+        opacity: 1,
+        clearProps: "opacity,willChange",
+      });
+      return;
+    }
+
+    const split = SplitText.create(el, {
+      type: "chars",
+      charsClass: "sk-highlight-char",
+      autoSplit: true,
+      deepSlice: true,
+    });
+
+    gsap.set(split.chars, {
+      opacity: 0.35,
+      willChange: "opacity",
+      color: "currentColor",
+    });
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: config.startAt,
+      once: true,
+      markers: config.debug,
+      onEnter: () => {
+        gsap.to(split.chars, {
+          opacity: 1,
+          duration: 0.5,
+          ease: config.ease,
+          stagger: 0.015,
+          overwrite: "auto",
+          clearProps: "opacity,willChange",
+        });
+      },
+    });
+  });
 }
 
 function init(userConfig = {}) {
@@ -224,6 +432,11 @@ function init(userConfig = {}) {
 
   const globalConfig = window.SKMotionConfig || {};
 
+  const reduceMotionSetting =
+    userConfig.reduceMotion ??
+    globalConfig.reduceMotion ??
+    DEFAULT_CONFIG.reduceMotion;
+
   const config = {
     ...DEFAULT_CONFIG,
     ...globalConfig,
@@ -231,15 +444,23 @@ function init(userConfig = {}) {
     selectors: {
       ...DEFAULT_CONFIG.selectors,
       ...(globalConfig.selectors || {}),
-      ...(userConfig.selectors || {})
-    }
+      ...(userConfig.selectors || {}),
+    },
+    reduceMotion:
+      reduceMotionSetting === "auto" || reduceMotionSetting == null
+        ? prefersReducedMotion()
+        : Boolean(reduceMotionSetting),
   };
+
+  if (config.reduceMotion) {
+    config.smoothScroll = false;
+  }
 
   CustomEase.create(config.ease, "0.625,0.05,0,1");
 
   ScrollTrigger.config({
     ignoreMobileResize: true,
-    limitCallbacks: true
+    limitCallbacks: true,
   });
 
   domReady(() => {
@@ -250,21 +471,29 @@ function init(userConfig = {}) {
       window.scrollTo(0, 0);
     }
 
-    initSmoothScroll(config);
-    initReveal(config);
-    initOpacity(config);
-    initEntryBlur(config);
-    initTextReveal(config);
+    const runInitAnimations = () => {
+      initSmoothScroll(config);
+      initReveal(config);
+      initOpacity(config);
+      initEntryBlur(config);
+      initTextReveal(config);
+      initTextHighlightWords(config);
+      initTextHighlightChars(config);
 
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh();
-    });
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
+    };
+
+    waitForFontsReady(config).then(runInitAnimations);
 
     window.__skMotionScan = () => {
       initReveal(config);
       initOpacity(config);
       initEntryBlur(config);
       initTextReveal(config);
+      initTextHighlightWords(config);
+      initTextHighlightChars(config);
       ScrollTrigger.refresh();
     };
 
@@ -278,7 +507,7 @@ function init(userConfig = {}) {
 
 window.StudioKyneMotion = {
   init,
-  version: VERSION
+  version: VERSION,
 };
 
 if (window.SKMotionConfig?.autoInit !== false) {

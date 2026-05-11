@@ -1,18 +1,31 @@
 # SK Motion
 
+[![npm](https://img.shields.io/npm/v/@studiokyne/sk-motion?color=111111&label=npm&logo=npm)](https://www.npmjs.com/package/@studiokyne/sk-motion)
+[![bundle](https://img.shields.io/badge/bundle-iife-111111)](#)
+[![gsap](https://img.shields.io/badge/GSAP-3.15+-111111)](https://gsap.com/)
+[![vite](https://img.shields.io/badge/Vite-8+-111111)](https://vitejs.dev/)
+
 Librairie d’animations front-end Studio Kyne pour WordPress / Bricks Builder.
+
+Tags: WordPress, Bricks Builder, GSAP, ScrollTrigger, SplitText, Lenis, IIFE
+
+## Apercu rapide
+
+- Animations GSAP prêtes a l'emploi pour le contenu editorial.
+- ScrollTrigger optimise avec SplitText et Lenis.
+- Config simple via `window.SKMotionConfig` ou `StudioKyneMotion.init()`.
+- Respect de `prefers-reduced-motion`.
 
 ## Installation avec Fluent Snippets
 
 Créer un snippet PHP avec les réglages suivants :
 
+- Nom : SK Motion
 - Type : PHP
 - Exécution : front-end uniquement
 - Priorité : 20
 
 ```php
-<?php
-
 add_action('wp_enqueue_scripts', function () {
     if (is_admin()) {
         return;
@@ -38,11 +51,14 @@ add_action('wp_enqueue_scripts', function () {
             smoothScroll: true,
             forceTopOnBoot: true,
             startAt: "top 98%",
+            reduceMotion: "auto",
             selectors: {
-                reveal: ".sa-reveal",
-                textReveal: ".sa-text-reveal",
-                opacity: ".sa-opacity",
-                entryBlur: ".sa-entry-blur"
+                reveal: ".sk-reveal",
+                textReveal: ".sk-text-lines",
+                opacity: ".sk-fade",
+                entryBlur: ".sk-entry-blur",
+                textHighlightWords: ".sk-text-highlight-words",
+                textHighlightChars: ".sk-text-highlight-chars"
             }
         };',
         'before'
@@ -55,27 +71,37 @@ add_action('wp_enqueue_scripts', function () {
 ### Reveal classique
 
 ```html
-<div class="sa-reveal">Contenu à révéler</div>
+<div class="sk-reveal">Contenu à révéler</div>
 ```
 
-### Opacity reveal
+### Fade (opacity)
 
 ```html
-<div class="sa-opacity">Contenu à révéler en opacité</div>
+<div class="sk-fade">Contenu à révéler en opacité</div>
 ```
 
 ### Entry blur
 
 ```html
-<div class="sa-entry-blur">Contenu avec entrée moderne + léger blur</div>
+<div class="sk-entry-blur">Contenu avec entrée moderne + léger blur</div>
 ```
 
-### Text reveal
+### Text reveal (lines)
 
 ```html
-<h2 class="sa-text-reveal">
-  Texte avec <span class="text-highlight">highlight</span>
-</h2>
+<h2 class="sk-text-lines">Texte reveal ligne par ligne</h2>
+```
+
+### Text highlight (words)
+
+```html
+<p class="sk-text-highlight-words">Texte highlight mot par mot</p>
+```
+
+### Text highlight (chars)
+
+```html
+<p class="sk-text-highlight-chars">Texte highlight lettre par lettre</p>
 ```
 
 ## Debug
@@ -87,6 +113,29 @@ Exemple :
 ```txt
 https://monsite.com/?saDebug
 ```
+
+## Accessibilité
+
+`prefers-reduced-motion: reduce` est respecté. Les animations sont désactivées et le contenu reste visible.
+
+## Configuration
+
+Vous pouvez configurer la librairie via `window.SKMotionConfig` ou `StudioKyneMotion.init({ ... })`.
+
+- `debug` (boolean, defaut: detecte via `?saDebug`) : active les markers ScrollTrigger.
+- `smoothScroll` (boolean, defaut: true) : active Lenis.
+- `forceTopOnBoot` (boolean, defaut: true) : force un scroll top au chargement.
+- `startAt` (string, defaut: "top 98%") : position de declenchement ScrollTrigger.
+- `ease` (string, defaut: "smoothKyne") : easing GSAP utilise.
+- `waitForFonts` (boolean, defaut: true) : attend le chargement des webfonts avant d'initialiser.
+- `fontReadyTimeout` (number ms, defaut: 1500) : timeout max pour l'attente des fonts.
+- `selectors` (object) : mapping des classes CSS.
+  - `reveal`, `textReveal`, `opacity`, `entryBlur`, `textHighlightWords`, `textHighlightChars`.
+- `autoInit` (boolean, defaut: true) : desactive l'auto-init si `false`.
+- `reduceMotion` ("auto" | boolean, defaut: "auto") :
+  - `"auto"` respecte `prefers-reduced-motion`.
+  - `true` force la reduction (pas d'animations).
+  - `false` force les animations.
 
 ## Fonctions console
 
