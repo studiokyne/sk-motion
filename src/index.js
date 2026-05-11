@@ -349,7 +349,7 @@ function initTextHighlightWords(config) {
     });
 
     gsap.set(split.words, {
-      opacity: 0.35,
+      opacity: 0.2,
       willChange: "opacity",
       color: "currentColor",
     });
@@ -357,7 +357,7 @@ function initTextHighlightWords(config) {
     gsap.to(split.words, {
       opacity: 1,
       ease: "none",
-      stagger: 0.04,
+      stagger: 0.02,
       overwrite: "auto",
       scrollTrigger: {
         trigger: el,
@@ -400,7 +400,7 @@ function initTextHighlightChars(config) {
     });
 
     gsap.set(split.chars, {
-      opacity: 0.35,
+      opacity: 0.2,
       willChange: "opacity",
       color: "currentColor",
     });
@@ -408,7 +408,7 @@ function initTextHighlightChars(config) {
     gsap.to(split.chars, {
       opacity: 1,
       ease: "none",
-      stagger: 0.015,
+      stagger: 0.15,
       overwrite: "auto",
       scrollTrigger: {
         trigger: el,
