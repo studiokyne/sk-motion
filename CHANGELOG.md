@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/studiokyne/sk-motion/compare/v1.2.0...v1.2.1) (2026-05-11)
+
+
+### Bug Fixes
+
+* ajustement des opacités et des délais de décalage pour les animations de texte ([a7de4de](https://github.com/studiokyne/sk-motion/commit/a7de4de13e0f8bec2513da97e590f135cf97701b))
+
 # [1.2.0](https://github.com/studiokyne/sk-motion/compare/v1.1.0...v1.2.0) (2026-05-11)
 
 
