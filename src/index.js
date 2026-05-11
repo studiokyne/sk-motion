@@ -305,6 +305,12 @@ function injectCSSOnce() {
     }
 
     .sk-highlight-word,
+    .sk-char-word {
+      display: inline;
+      backface-visibility: hidden;
+      color: currentColor;
+    }
+
     .sk-highlight-char {
       display: inline-block;
       backface-visibility: hidden;
@@ -394,33 +400,21 @@ function initTextHighlightChars(config) {
       return;
     }
 
-    const splitWords = SplitText.create(el, {
-      type: "words",
+    const split = SplitText.create(el, {
+      type: "words, chars",
       wordsClass: "sk-char-word",
+      charsClass: "sk-highlight-char",
       autoSplit: true,
       deepSlice: true,
     });
 
-    const allChars = [];
-
-    splitWords.words.forEach((word) => {
-      const splitChars = SplitText.create(word, {
-        type: "chars",
-        charsClass: "sk-highlight-char",
-        autoSplit: true,
-        deepSlice: true,
-      });
-
-      allChars.push(...splitChars.chars);
-    });
-
-    gsap.set(allChars, {
+    gsap.set(split.chars, {
       opacity: 0.1,
       willChange: "opacity",
       color: "currentColor",
     });
 
-    gsap.to(allChars, {
+    gsap.to(split.chars, {
       opacity: 1,
       ease: "none",
       stagger: config.highlightCharStagger,
