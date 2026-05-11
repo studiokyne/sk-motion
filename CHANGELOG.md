@@ -1,3 +1,11 @@
+## [1.2.4](https://github.com/studiokyne/sk-motion/compare/v1.2.3...v1.2.4) (2026-05-11)
+
+
+### Bug Fixes
+
+* amélioration de la gestion des mots et caractères dans les animations de texte ([cabdf27](https://github.com/studiokyne/sk-motion/commit/cabdf270fd58cc38ae495697510d6e4b6acd9f8a))
+* mise à jour des paramètres de décalage et d'opacité pour les animations de texte ([41979ec](https://github.com/studiokyne/sk-motion/commit/41979ec32413c37c77eeaa67f6a5ea678baef751))
+
 ## [1.2.3](https://github.com/studiokyne/sk-motion/compare/v1.2.2...v1.2.3) (2026-05-11)
 
 
