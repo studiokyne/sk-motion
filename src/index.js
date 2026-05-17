@@ -679,7 +679,6 @@ function injectCSSOnce() {
       text-decoration: none;
     }
 
-    .sk-hover-underline::before,
     .sk-hover-underline::after {
       content: "";
       position: absolute;
@@ -690,20 +689,11 @@ function injectCSSOnce() {
       border-radius: 999px;
       background-color: var(--sk-hover-underline-color);
       pointer-events: none;
-      transform: scaleX(0);
+      clip-path: inset(0 100% 0 0 round 999px);
       transition:
-        transform var(--sk-hover-underline-duration)
+        clip-path var(--sk-hover-underline-duration)
           var(--sk-hover-underline-ease);
-      will-change: transform;
-    }
-
-    .sk-hover-underline::before {
-      transform-origin: left center;
-    }
-
-    .sk-hover-underline::after {
-      transform-origin: right center;
-      transform: scaleX(1);
+      will-change: clip-path;
     }
 
     .sk-hover-underline:hover,
@@ -711,19 +701,13 @@ function injectCSSOnce() {
       outline: none;
     }
 
-    .sk-hover-underline:hover::before,
-    .sk-hover-underline:focus-visible::before {
-      transform: scaleX(1);
-    }
-
     .sk-hover-underline:hover::after,
     .sk-hover-underline:focus-visible::after {
-      transform: scaleX(0);
+      clip-path: inset(0 0 0 0 round 999px);
     }
 
     @media (prefers-reduced-motion: reduce) {
       .sk-hover-underline,
-      .sk-hover-underline::before,
       .sk-hover-underline::after {
         transition: none;
       }
@@ -732,13 +716,8 @@ function injectCSSOnce() {
         padding-bottom: var(--sk-hover-underline-gap);
       }
 
-      .sk-hover-underline::before,
       .sk-hover-underline::after {
-        transform: scaleX(0);
-      }
-
-      .sk-hover-underline::after {
-        transform: scaleX(1);
+        clip-path: inset(0 0 0 0 round 999px);
       }
     }
 

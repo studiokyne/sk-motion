@@ -255,7 +255,7 @@ Variables CSS disponibles :
 - `--sk-hover-underline-ease`
 - `--sk-hover-underline-color`
 
-Le underline est volontairement placé plus bas que le texte et son aller/retour utilise deux couches pour éviter les sauts visuels si le hover est rapide.
+Le underline est volontairement placé plus bas que le texte. Il se dévoile de gauche à droite au hover, puis se referme de droite à gauche au de-hover sans apparaître au repos.
 
 ### Text reveal (lines)
 
