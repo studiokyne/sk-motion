@@ -1,3 +1,10 @@
+## [1.2.5](https://github.com/studiokyne/sk-motion/compare/v1.2.4...v1.2.5) (2026-05-17)
+
+
+### Bug Fixes
+
+* mise à jour des animations et ajout de nouvelles options dans la configuration ([90b6fcb](https://github.com/studiokyne/sk-motion/commit/90b6fcb8be4d8f0b4396a053ca7a108c552c80c8))
+
 ## [1.2.4](https://github.com/studiokyne/sk-motion/compare/v1.2.3...v1.2.4) (2026-05-11)
 
 
