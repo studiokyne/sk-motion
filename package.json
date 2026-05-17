@@ -1,6 +1,6 @@
 {
   "name": "@studiokyne/sk-motion",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Librairie d’animations front-end Studio Kyne pour WordPress et Bricks Builder.",
   "type": "module",
   "main": "dist/sk-motion.full.iife.min.js",
