@@ -250,10 +250,12 @@ Nom standard recommandé pour la library : `.sk-hover-underline`.
 Variables CSS disponibles :
 
 - `--sk-hover-underline-thickness`
-- `--sk-hover-underline-offset`
+- `--sk-hover-underline-gap`
 - `--sk-hover-underline-duration`
 - `--sk-hover-underline-ease`
 - `--sk-hover-underline-color`
+
+Le underline est volontairement placé plus bas que le texte et son aller/retour utilise deux couches pour éviter les sauts visuels si le hover est rapide.
 
 ### Text reveal (lines)
 

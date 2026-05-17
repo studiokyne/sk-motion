@@ -669,31 +669,76 @@ function injectCSSOnce() {
   style.textContent = `
     .sk-hover-underline {
       --sk-hover-underline-thickness: 2px;
-      --sk-hover-underline-offset: 0.2em;
+      --sk-hover-underline-gap: 0.38em;
       --sk-hover-underline-duration: 0.5s;
       --sk-hover-underline-ease: cubic-bezier(0.25, 1, 0.5, 1);
       --sk-hover-underline-color: currentColor;
-      background-image: linear-gradient(
-        var(--sk-hover-underline-color),
-        var(--sk-hover-underline-color)
-      );
-      background-repeat: no-repeat;
-      background-position: 0 calc(100% - var(--sk-hover-underline-offset));
-      background-size: 0% var(--sk-hover-underline-thickness);
+      position: relative;
+      display: inline-block;
+      padding-bottom: var(--sk-hover-underline-gap);
       text-decoration: none;
+    }
+
+    .sk-hover-underline::before,
+    .sk-hover-underline::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: var(--sk-hover-underline-thickness);
+      border-radius: 999px;
+      background-color: var(--sk-hover-underline-color);
+      pointer-events: none;
+      transform: scaleX(0);
       transition:
-        background-size var(--sk-hover-underline-duration)
+        transform var(--sk-hover-underline-duration)
           var(--sk-hover-underline-ease);
+      will-change: transform;
+    }
+
+    .sk-hover-underline::before {
+      transform-origin: left center;
+    }
+
+    .sk-hover-underline::after {
+      transform-origin: right center;
+      transform: scaleX(1);
     }
 
     .sk-hover-underline:hover,
     .sk-hover-underline:focus-visible {
-      background-size: 100% var(--sk-hover-underline-thickness);
+      outline: none;
+    }
+
+    .sk-hover-underline:hover::before,
+    .sk-hover-underline:focus-visible::before {
+      transform: scaleX(1);
+    }
+
+    .sk-hover-underline:hover::after,
+    .sk-hover-underline:focus-visible::after {
+      transform: scaleX(0);
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .sk-hover-underline {
+      .sk-hover-underline,
+      .sk-hover-underline::before,
+      .sk-hover-underline::after {
         transition: none;
+      }
+
+      .sk-hover-underline {
+        padding-bottom: var(--sk-hover-underline-gap);
+      }
+
+      .sk-hover-underline::before,
+      .sk-hover-underline::after {
+        transform: scaleX(0);
+      }
+
+      .sk-hover-underline::after {
+        transform: scaleX(1);
       }
     }
 
