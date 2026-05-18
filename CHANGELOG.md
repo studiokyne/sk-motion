@@ -1,3 +1,10 @@
+## [1.2.8](https://github.com/studiokyne/sk-motion/compare/v1.2.7...v1.2.8) (2026-05-18)
+
+
+### Bug Fixes
+
+* amélioration de l'effet de survol pour la classe sk-hover-underline avec des options de personnalisation ([37638f8](https://github.com/studiokyne/sk-motion/commit/37638f87de5da55a7824e6160da11bd5bc35e038))
+
 ## [1.2.7](https://github.com/studiokyne/sk-motion/compare/v1.2.6...v1.2.7) (2026-05-17)
 
 
