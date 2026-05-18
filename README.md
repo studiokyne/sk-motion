@@ -255,7 +255,24 @@ Variables CSS disponibles :
 - `--sk-hover-underline-ease`
 - `--sk-hover-underline-color`
 
-Le underline est volontairement placé plus bas que le texte. Il se dévoile de gauche à droite au hover, puis se referme de droite à gauche au de-hover sans apparaître au repos.
+Comportement et personnalisation
+
+- L'underline est piloté par la taille de police : `--sk-hover-underline-gap` utilise des unités `em` dans le code (valeur par défaut : `clamp(0.08em, 0.12em, 0.32em)`). Cela permet à l'underline de rester proportionnel quand le `font-size` augmente.
+- Pour garder une position visuelle fixe par rapport à la baseline, le pseudo-élément `::after` est positionné avec `bottom: calc(-1 * var(--sk-hover-underline-gap))`.
+- Le composant ajoute une petite `padding-bottom` automatiquement pour éviter que le layout ne saute, mais la position visuelle réelle reste contrôlée par `--sk-hover-underline-gap`.
+- L'animation se dévoile de gauche à droite au hover (origine contrôlée par `--sk-hover-underline-origin`) et se referme dans l'autre sens quand la souris quitte l'élément.
+
+Exemples:
+
+```css
+.sk-hover-underline {
+  /* valeurs par défaut */
+}
+.sk-hover-underline.big-title {
+  --sk-hover-underline-gap: 0.25em; /* élargir l'écart pour les très gros titres */
+  --sk-hover-underline-thickness: 3px;
+}
+```
 
 ### Text reveal (lines)
 

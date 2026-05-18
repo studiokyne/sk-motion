@@ -669,14 +669,20 @@ function injectCSSOnce() {
   style.textContent = `
     .sk-hover-underline {
       --sk-hover-underline-thickness: 2px;
-      --sk-hover-underline-gap: 0.38em;
-      --sk-hover-underline-duration: 0.5s;
+      /* gap driven by font-size (em) so underline scales with text size */
+      --sk-hover-underline-gap: clamp(0.08em, 0.12em, 0.32em);
+      --sk-hover-underline-duration: 0.4s;
       --sk-hover-underline-ease: cubic-bezier(0.25, 1, 0.5, 1);
       --sk-hover-underline-color: currentColor;
+      --sk-hover-underline-scale: 0;
+      --sk-hover-underline-origin: left;
       position: relative;
       display: inline-block;
-      padding-bottom: var(--sk-hover-underline-gap);
+      line-height: 1.08;
+      /* small padding to avoid layout jumps; visual position controlled by ::after bottom */
+      padding-bottom: calc(var(--sk-hover-underline-gap) * 0.45);
       text-decoration: none;
+      overflow: visible;
     }
 
     .sk-hover-underline::after {
@@ -684,16 +690,17 @@ function injectCSSOnce() {
       position: absolute;
       left: 0;
       right: 0;
-      bottom: 0;
+      /* position relative to font-size so underline stays visually fixed under glyphs */
+      bottom: calc(-1 * var(--sk-hover-underline-gap));
       height: var(--sk-hover-underline-thickness);
       border-radius: 999px;
       background-color: var(--sk-hover-underline-color);
       pointer-events: none;
-      clip-path: inset(0 100% 0 0 round 999px);
-      transition:
-        clip-path var(--sk-hover-underline-duration)
-          var(--sk-hover-underline-ease);
-      will-change: clip-path;
+      transform: scaleX(var(--sk-hover-underline-scale, 0));
+      transform-origin: var(--sk-hover-underline-origin, left) center;
+      transition: transform var(--sk-hover-underline-duration)
+        var(--sk-hover-underline-ease);
+      will-change: transform;
     }
 
     .sk-hover-underline:hover,
@@ -703,7 +710,7 @@ function injectCSSOnce() {
 
     .sk-hover-underline:hover::after,
     .sk-hover-underline:focus-visible::after {
-      clip-path: inset(0 0 0 0 round 999px);
+      --sk-hover-underline-scale: 1;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -717,7 +724,7 @@ function injectCSSOnce() {
       }
 
       .sk-hover-underline::after {
-        clip-path: inset(0 0 0 0 round 999px);
+        transform: scaleX(1);
       }
     }
 
@@ -759,6 +766,43 @@ function injectCSSOnce() {
   `;
 
   document.head.appendChild(style);
+}
+
+function initHoverUnderline() {
+  const els = [
+    ...document.querySelectorAll(
+      ".sk-hover-underline:not([data-sk-hover-underline-init])",
+    ),
+  ];
+
+  if (!els.length) return;
+
+  els.forEach((el) => {
+    el.setAttribute("data-sk-hover-underline-init", "true");
+
+    const setUnderlineState = (origin, scale) => {
+      el.style.setProperty("--sk-hover-underline-origin", origin);
+      el.style.setProperty("--sk-hover-underline-scale", scale);
+    };
+
+    setUnderlineState("left", "0");
+
+    el.addEventListener("mouseenter", () => {
+      setUnderlineState("left", "1");
+    });
+
+    el.addEventListener("mouseleave", () => {
+      setUnderlineState("right", "0");
+    });
+
+    el.addEventListener("focus", () => {
+      setUnderlineState("left", "1");
+    });
+
+    el.addEventListener("blur", () => {
+      setUnderlineState("right", "0");
+    });
+  });
 }
 
 function initTextHighlightWords(config) {
@@ -911,6 +955,7 @@ function init(userConfig = {}) {
 
   domReady(() => {
     injectCSSOnce();
+    initHoverUnderline();
 
     if (config.forceTopOnBoot && "scrollRestoration" in history) {
       history.scrollRestoration = "manual";
@@ -937,6 +982,7 @@ function init(userConfig = {}) {
     waitForFontsReady(config).then(runInitAnimations);
 
     window.__skMotionScan = () => {
+      initHoverUnderline();
       initReveal(config);
       initOpacity(config);
       initEntryBlur(config);
