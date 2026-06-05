@@ -7,7 +7,7 @@
 
 Librairie d’animations front-end Studio Kyne pour WordPress / Bricks Builder.
 
-Tags: WordPress, Bricks Builder, GSAP, ScrollTrigger, SplitText, Lenis, IIFE
+Tags: WordPress, Bricks Builder, GSAP, ScrollTrigger, SplitText, Lenis
 
 ## Apercu rapide
 
