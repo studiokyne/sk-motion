@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/studiokyne/sk-motion/compare/v1.3.0...v1.3.1) (2026-06-05)
+
+
+### Bug Fixes
+
+* suppression de l'option IIFE des tags dans la documentation ([8dac48c](https://github.com/studiokyne/sk-motion/commit/8dac48c8f1878b7430e7b3e17475f5b41d364810))
+
 # [1.3.0](https://github.com/studiokyne/sk-motion/compare/v1.2.8...v1.3.0) (2026-06-05)
 
 
