@@ -4,6 +4,14 @@ import { SplitText } from "gsap/SplitText";
 import { CustomEase } from "gsap/CustomEase";
 import Lenis from "lenis";
 
+// Set BEFORE gsap.registerPlugin: ScrollTrigger captures scrollRestoration during
+// registerPlugin and restores it on every refresh() — setting "manual" here ensures
+// ScrollTrigger keeps restoring to "manual" rather than "auto" after each refresh
+if (window.SKMotionConfig?.forceTopOnBoot !== false) {
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+}
+
 gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
 
 const VERSION = __SK_MOTION_VERSION__;
@@ -11,6 +19,7 @@ const VERSION = __SK_MOTION_VERSION__;
 const DEFAULT_CONFIG = {
   debug: new URLSearchParams(window.location.search).has("saDebug"),
   smoothScroll: true,
+  autoToggle: true,
   forceTopOnBoot: true,
   startAt: "top 98%",
   ease: "smoothKyne",
@@ -78,6 +87,13 @@ const DEFAULT_CONFIG = {
 
 let hasInit = false;
 let lenis = null;
+
+// behavior: "instant" bypasses all CSS scroll-behavior rules — including stylesheet-level
+// rules like `html { scroll-behavior: smooth }` added by themes/builders that inline
+// style overrides cannot suppress (removing an inline style re-activates the stylesheet)
+function scrollToTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+}
 
 function domReady(callback) {
   if (document.readyState === "loading") {
@@ -310,6 +326,7 @@ function initSmoothScroll(config) {
     allowNestedScroll: true,
     anchors: { offset: -108 },
     autoRaf: false,
+    autoToggle: config.autoToggle,
   });
 
   lenis.on("scroll", ScrollTrigger.update);
@@ -321,6 +338,7 @@ function initSmoothScroll(config) {
   gsap.ticker.lagSmoothing(0);
 
   window.__lenis = lenis;
+  window.lenis = lenis;
 }
 
 function initBatchAnimation(config, animationKey, selector, options = {}) {
@@ -346,6 +364,7 @@ function initBatchAnimation(config, animationKey, selector, options = {}) {
   ScrollTrigger.batch(els, {
     start: config.startAt,
     once: true,
+    invalidateOnRefresh: true,
     batchMax: 10,
     markers: config.debug,
     onEnter: (batch) => {
@@ -645,6 +664,7 @@ function initTextReveal(config) {
       trigger: el,
       start: config.startAt,
       once: true,
+      invalidateOnRefresh: true,
       markers: config.debug,
       onEnter: () => {
         gsap.to(split.lines, {
@@ -763,6 +783,27 @@ function injectCSSOnce() {
     .sk-scale-in-blur {
       backface-visibility: hidden;
     }
+
+    html.lenis,
+    html.lenis body {
+      height: auto;
+    }
+
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
+
+    .lenis.lenis-smooth iframe {
+      pointer-events: none;
+    }
   `;
 
   document.head.appendChild(style);
@@ -852,6 +893,7 @@ function initTextHighlightWords(config) {
         start: config.startAt,
         end: config.highlightEnd,
         scrub: true,
+        invalidateOnRefresh: true,
         markers: config.debug,
       },
     });
@@ -906,6 +948,7 @@ function initTextHighlightChars(config) {
         start: config.startAt,
         end: config.highlightEnd,
         scrub: true,
+        invalidateOnRefresh: true,
         markers: config.debug,
       },
     });
@@ -953,17 +996,44 @@ function init(userConfig = {}) {
     limitCallbacks: true,
   });
 
+  if (config.forceTopOnBoot && "scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+
   domReady(() => {
     injectCSSOnce();
     initHoverUnderline();
 
-    if (config.forceTopOnBoot && "scrollRestoration" in history) {
-      history.scrollRestoration = "manual";
-      window.scrollTo(0, 0);
+    if (config.forceTopOnBoot) {
+      scrollToTop();
+    }
+
+    // Lenis starts immediately on DOM ready — not deferred to font loading —
+    // so that window.lenis is available as soon as possible for external code
+    initSmoothScroll(config);
+
+    if (lenis && config.forceTopOnBoot) {
+      lenis.scrollTo(0, { immediate: true });
+    }
+
+    // bfcache: page restored from cache via back/forward — JS state is preserved but
+    // scroll position may be non-zero; reset it and refresh ScrollTrigger
+    if (config.forceTopOnBoot) {
+      window.addEventListener("pageshow", (e) => {
+        if (e.persisted) {
+          scrollToTop();
+          if (lenis) lenis.scrollTo(0, { immediate: true });
+          ScrollTrigger.refresh();
+        }
+      });
     }
 
     const runInitAnimations = () => {
-      initSmoothScroll(config);
+      if (config.forceTopOnBoot) {
+        scrollToTop();
+        if (lenis) lenis.scrollTo(0, { immediate: true });
+      }
+
       initReveal(config);
       initOpacity(config);
       initEntryBlur(config);
@@ -974,8 +1044,12 @@ function init(userConfig = {}) {
       initTextHighlightWords(config);
       initTextHighlightChars(config);
 
+      // Double rAF: ensures Lenis has completed at least one tick before
+      // ScrollTrigger recalculates positions and fires onEnter for in-view elements
       requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+        });
       });
     };
 
@@ -1006,7 +1080,19 @@ function init(userConfig = {}) {
 window.StudioKyneMotion = {
   init,
   version: VERSION,
+  gsap,
+  ScrollTrigger,
+  get lenis() { return lenis; },
+  stopScroll() { if (lenis) lenis.stop(); },
+  startScroll() { if (lenis) lenis.start(); },
 };
+
+if (!window.gsap) window.gsap = gsap;
+
+// Simple global functions for Bricks interactions (field expects a bare function name,
+// not dot notation like window.StudioKyneMotion.stopScroll)
+window.skStopScroll = () => { if (lenis) lenis.stop(); };
+window.skStartScroll = () => { if (lenis) lenis.start(); };
 
 if (window.SKMotionConfig?.autoInit !== false) {
   init();
