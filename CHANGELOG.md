@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/studiokyne/sk-motion/compare/v1.2.8...v1.3.0) (2026-06-05)
+
+
+### Features
+
+* ajout de la documentation CLAUDE.md pour guider l'utilisation du code ([40d1cb3](https://github.com/studiokyne/sk-motion/commit/40d1cb39e56b4830cac5da0c6d785008abc187be))
+
 ## [1.2.8](https://github.com/studiokyne/sk-motion/compare/v1.2.7...v1.2.8) (2026-05-18)
 
 
